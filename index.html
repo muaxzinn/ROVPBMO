@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Firman Awea — Auto Media Index (GitHub)</title>
+  <meta name="description" content="ศูนย์รวมรูป วิดีโอ เสียง เอกสาร จาก GitHub repo ของ Firman (มัง) — อัปเดตรายการอัตโนมัติเมื่ออัปโหลดไฟล์ใหม่" />
+  <meta name="theme-color" content="#0b0d11" />
+  <link rel="icon" href="assets/icons/favicon.svg" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+Thai:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="assets/css/main.css" />
+</head>
+<body class="bg-bg text-text font-sans selection:bg-brand/30 selection:text-text">
+  <!-- Background decorations -->
+  <div class="fixed inset-0 -z-10 bg-[radial-gradient(60%_40%_at_10%_10%,rgba(34,211,238,.12),transparent),radial-gradient(40%_30%_at_85%_20%,rgba(59,130,246,.10),transparent)]"></div>
+
+  <!-- NAV / HEADER -->
+  <header class="max-w-6xl mx-auto px-4 pt-8 pb-4">
+    <nav class="flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3 group">
+        <img src="assets/img/avatar.svg" alt="Firman avatar" class="w-10 h-10 rounded-full ring-2 ring-brand/40 object-cover">
+        <span class="font-extrabold tracking-tight text-xl group-hover:text-brand transition-colors">Firman Awea</span>
+      </a>
+      <div class="hidden sm:flex items-center gap-2">
+        <a href="#media" class="chip">Media</a>
+        <a href="#folders" class="chip">Folders</a>
+        <a href="#contact" class="chip">Contact</a>
+        <a href="pages/about.html" class="chip">About</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section class="max-w-6xl mx-auto px-4 py-6">
+    <div class="card-hero">
+      <div class="grid md:grid-cols-3 gap-8 items-center">
+        <div class="md:col-span-2">
+          <h1 class="title">Auto Media Index</h1>
+          <p class="subtitle">
+            อัปโหลดไฟล์เข้า Git → รายการบนหน้านี้อัปเดตอัตโนมัติ รองรับรูป/วิดีโอ/เสียง/เอกสาร ค้นหา ฟิลเตอร์ ดูตัวอย่างได้ทันที
+          </p>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <a href="#media" class="btn-primary">ดูสื่อทั้งหมด</a>
+            <a href="#folders" class="btn-secondary">ไปที่โฟลเดอร์</a>
+            <a href="assets/Firman.vcf" class="btn-secondary" download>ดาวน์โหลด vCard</a>
+          </div>
+        </div>
+        <div class="md:col-span-1">
+          <div class="card">
+            <h2 class="card-title">โปรไฟล์</h2>
+            <ul class="space-y-2 text-sm text-muted">
+              <li>• นักวิจัย / นักพัฒนา (AI/ML & Web)</li>
+              <li>• โครงสร้างโฟลเดอร์ชัดเจน สเกลง่าย</li>
+              <li>• GitHub Pages static + GitHub API</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div id="truncatedNote" class="hidden mt-4 text-xs text-yellow-300/90">
+        ⚠️ Repo นี้ใหญ่จน GitHub API ส่ง <code>truncated</code>. แนะนำแยกโฟลเดอร์ย่อย (เช่น <code>assets/img/2025/</code>) เพื่อลดรายการต่อครั้ง
+      </div>
+    </div>
+  </section>
+
+  <!-- FOLDERS -->
+  <section id="folders" class="max-w-6xl mx-auto px-4 py-10">
+    <div class="flex items-end justify-between mb-6">
+      <h2 class="section-title">Main Folders</h2>
+      <a id="repoLink" href="#" target="_blank" class="text-sm text-muted hover:text-text transition">ดูบน GitHub</a>
+    </div>
+    <div id="folderCards" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+  </section>
+
+  <!-- MEDIA EXPLORER -->
+  <section id="media" class="max-w-6xl mx-auto px-4 py-10">
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-4">
+      <div>
+        <h2 class="section-title">Media Explorer</h2>
+        <p class="text-muted text-sm mt-1">ค้นหา/ฟิลเตอร์รายการไฟล์สดจาก GitHub API</p>
+      </div>
+      <div class="flex gap-2">
+        <button data-filter="all" class="chip filter-chip">All</button>
+        <button data-filter="image" class="chip filter-chip">Images</button>
+        <button data-filter="video" class="chip filter-chip">Videos</button>
+        <button data-filter="audio" class="chip filter-chip">Audio</button>
+        <button data-filter="doc" class="chip filter-chip">Docs</button>
+      </div>
+    </div>
+
+    <div class="relative mb-5">
+      <input id="searchBox" type="search" placeholder="ค้นหา: ชื่อไฟล์หรือ path เช่น camera, 2025, cover..."
+             class="search-input" />
+      <div class="absolute right-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none">⌕</div>
+    </div>
+
+    <div id="mediaGrid" class="grid xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+    <div id="emptyState" class="hidden text-center text-muted mt-10">ไม่พบไฟล์ที่ตรงกับการค้นหา/ฟิลเตอร์</div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="max-w-6xl mx-auto px-4 py-12">
+    <div class="card-hero">
+      <h2 class="section-title mb-4">Contact & Social</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="space-y-3 text-sm">
+          <div class="contact-row">
+            <span class="contact-ico">📘</span>
+            <a id="fbLink" href="#" class="contact-link" target="_blank" rel="noopener">Fb: firman development</a>
+          </div>
+          <div class="contact-row">
+            <span class="contact-ico">📷</span>
+            <a id="igLink" href="#" class="contact-link" target="_blank" rel="noopener">IG: mang_agm</a>
+          </div>
+          <div class="contact-row">
+            <span class="contact-ico">✉️</span>
+            <a id="mailLink" href="mailto:firman.awea@gmail.com" class="contact-link">Gmail: firman.awea@gmail.com</a>
+          </div>
+          <div class="contact-row">
+            <span class="contact-ico">📞</span>
+            <a id="telLink" href="tel:0917257551" class="contact-link">Call: 091-725-7551</a>
+          </div>
+        </div>
+        <div class="space-y-3 text-sm text-muted">
+          <p>หน้านี้จะ “อัปเดตรายการไฟล์เอง” ทุกครั้งที่โหลด โดยอ่านผ่าน GitHub Trees API จากโฟลเดอร์ที่กำหนด</p>
+          <p class="text-xs">ทริก: แยกหมวดย่อยใน <code>assets/*</code> ตามปี/โปรเจกต์ จะค้นหาและดูง่ายขึ้น</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="max-w-6xl mx-auto px-4 pb-12 pt-2 text-center text-xs text-muted">
+    © <span id="year"></span> Firman Awea — Built with HTML + Tailwind + Vanilla JS · Auto-indexed from GitHub
+  </footer>
+
+  <!-- Lightbox -->
+  <dialog id="viewer" class="rounded-2xl bg-card border border-white/10 shadow-glow w-[min(96vw,1100px)]">
+    <form method="dialog" class="flex justify-end">
+      <button class="m-2 px-3 py-1.5 rounded-lg bg-card/70 border border-white/10 hover:border-brand/40">ปิด</button>
+    </form>
+    <div class="p-3">
+      <img id="viewerImg" alt="" class="w-full h-auto rounded-xl object-contain" />
+      <div class="mt-2 flex items-center justify-between">
+        <div id="viewerCaption" class="text-sm text-muted"></div>
+        <div class="flex gap-2">
+          <button id="prevBtn" class="btn-secondary">← ก่อนหน้า</button>
+          <button id="nextBtn" class="btn-secondary">ถัดไป →</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- App JS -->
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

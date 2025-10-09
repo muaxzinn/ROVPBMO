@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+
+
+<!-- ========== META TAGS FOR SOCIAL SHARE ========== -->
+<!-- ========== META TAGS FOR SOCIAL SHARE ========== -->
+<meta name="title" content="Smart Calories & BMI Analyzer — ตัวช่วยวิเคราะห์สุขภาพอัจฉริยะ" />
+<meta name="description" content="เครื่องมือคำนวณแคลอรีและ BMI แบบเรียลไทม์ พร้อมกราฟพลังงาน, ระบบแนะนำเมนูรายวัน, โหมดโภชนาการ (คีโต / คลีน / โลว์คาร์บ / ไฮโปรตีน / ฮาลาล) และระบบ Export PDF / JSON เพื่อแชร์ข้อมูลได้ทันที" />
+<meta name="keywords" content="คำนวณแคลอรี, BMI, TDEE, โภชนาการ, เมนูสุขภาพ, keto, clean, low-carb, high-protein, halal, smart calories, BMI analyzer" />
+<meta name="author" content="Firman Awea" />
+
+<!-- ✅ Open Graph for Facebook, LINE -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Smart Calories & BMI Analyzer — เครื่องมือวิเคราะห์สุขภาพและโภชนาการอัจฉริยะ" />
+<meta property="og:description" content="คำนวณแคลอรี, BMI, BMR พร้อมกราฟเปรียบเทียบพลังงานและสัดส่วนสารอาหาร แนะนำเมนูตามโหมดสุขภาพ เช่น คีโต คลีน โลว์คาร์บ ไฮโปรตีน และฮาลาลเท่านั้น" />
+<meta property="og:image" content="https://tse4.mm.bing.net/th/id/OIP.qfX8dEyttHNYFflKXqxh5AHaFj?pid=Api" />
+<meta property="og:url" content="https://yourwebsite.com/" />
+<meta property="og:locale" content="th_TH" />
+
+<!-- ✅ Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Smart Calories & BMI Analyzer — ระบบวิเคราะห์สุขภาพครบวงจร" />
+<meta name="twitter:description" content="เครื่องมือคำนวณสุขภาพอัจฉริยะ แสดงผล BMI, TDEE, กราฟพลังงาน และแนะนำเมนูสุขภาพที่เหมาะกับคุณ" />
+<meta name="twitter:image" content="https://tse1.mm.bing.net/th/id/OIP.rAKbaI4aOpSJVk1LnOUtsQHaFj?pid=Api" />
+
+<!-- ✅ Favicon -->
+<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966486.png" type="image/png" />
+
+
+
+
+
+
+
+
+<title>Smart calories & BMI Analyzer</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* ======================
+   Design System (Tokens)
+
+   ====================== */
+:root{
+  --bg: #f7f9fc;
+  --card: #ffffff;
+  --ink: #0f172a;
+  --muted: #6b7280;
+  --brand: #1e40af;
+  --brand-2:#2563eb;
+  --ok: #16a34a;
+  --warn:#f59e0b;
+  --danger:#ef4444;
+  --gold:#e5b90a;
+
+  --r-lg:16px; --r-md:12px; --r-sm:10px;
+  --shadow: 0 8px 30px rgba(0,0,0,.08);
+  --gap-1:.5rem; --gap-2:.75rem; --gap-3:1rem; --gap-4:1.5rem; --gap-5:2rem;
+  --fz-1:.9rem; --fz-2:1rem; --fz-3:1.15rem; --fz-4:1.35rem; --fz-5:1.8rem;
+  --ring: 37 99 235;
+}
+
+/* Reset & Base */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family:"Noto Sans Thai", ui-sans-serif, system-ui, Arial, sans-serif;
+  color:var(--ink); background:
+    radial-gradient(1200px 500px at 10% -10%, rgba(37,99,235,.08), transparent),
+    var(--bg);
+}
+
+/* Container */
+.container{ max-width: 1100px; margin: clamp(12px,2vw,28px) auto; padding: 0 clamp(10px,2vw,18px); }
+
+/* Header */
+.header{ display:flex; justify-content:space-between; align-items:center; gap:var(--gap-3); margin-bottom: var(--gap-3); }
+.brand{ display:flex; align-items:center; gap:12px; }
+.brand .logo{ width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg, var(--brand), var(--brand-2)); box-shadow: var(--shadow); }
+.brand h1{ margin:0; font-size: clamp(1.2rem,2.4vw,1.6rem); color:var(--brand); letter-spacing:.2px; }
+.sub{ color:var(--muted); font-size:var(--fz-1); }
+
+.actions{ display:flex; gap:10px; align-items:center; }
+.btn{
+  appearance:none; border:0; border-radius:12px; padding:10px 14px; font-weight:700; cursor:pointer;
+  box-shadow:0 10px 30px rgba(0,0,0,.06); transition: .25s ease;
+}
+.btn-primary{ background:var(--brand-2); color:#fff; }
+.btn-primary:hover{ background:#1d4ed8; transform:translateY(-1px); }
+.btn-ghost{ background:transparent; color:var(--muted); }
+
+/* Grid */
+.grid{ display:grid; gap:var(--gap-3); grid-template-columns: repeat(12, 1fr); }
+.col-12{grid-column: span 12}
+@media (min-width: 860px){
+  .col-5{grid-column: span 5}
+  .col-7{grid-column: span 7}
+  .col-6{grid-column: span 6}
+}
+
+/* Card */
+.card{
+  background:var(--card); border-radius:var(--r-lg); box-shadow: var(--shadow);
+  padding: clamp(14px,2vw,20px);
+}
+.card h2{ margin:.2rem 0 1rem; color:var(--brand); border-left:5px solid var(--gold); padding-left:10px; }
+
+/* Form (Step A = Basic, Step B = Goals & Prefs) */
+.form{
+  display:grid; gap:var(--gap-2);
+  grid-template-columns: repeat(12, 1fr);
+}
+.group{ grid-column: span 12; display:flex; flex-direction:column; gap:6px; }
+@media (min-width:680px){
+  .half{ grid-column: span 6 }
+  .third{ grid-column: span 4 }
+}
+.label{ font-weight:700; color:var(--muted); font-size:.95rem; }
+.help{ color:var(--muted); font-size:.85rem; }
+.input, .select{
+  width:100%; padding: 11px 12px; border-radius:10px; border:1px solid #d1d5db; background:#f1f5f9; font-size:1rem;
+  transition: .22s ease;
+}
+.input:focus, .select:focus{ outline:none; border-color: rgba(var(--ring),.5); box-shadow: 0 0 0 4px rgba(var(--ring),.15); }
+
+/* Preset chips */
+.chips{ display:flex; flex-wrap:wrap; gap:8px; }
+.chip{
+  padding:6px 10px; border-radius:999px; background:#eef2ff; color:#1d4ed8; border:1px solid #c7d2fe; cursor:pointer; font-weight:700; font-size:.9rem;
+}
+.chip[data-active="true"]{ background:#1d4ed8; color:#fff; border-color:#1d4ed8; }
+
+/* Results */
+.result{
+  border-left:8px solid var(--brand); background: linear-gradient(180deg, #fafcff, #ffffff);
+}
+.kv{ display:grid; gap:10px; grid-template-columns: repeat(2, minmax(0,1fr)); }
+.kv .item{ background:#f3f6fa; border-radius:12px; padding:10px; }
+.kv .t{ color:var(--muted); font-size:.9rem }
+.kv .v{ font-weight:800; font-size:1.15rem }
+
+/* Explanations */
+.explain{ margin-top:10px; font-size:.95rem; color:#334155; line-height:1.6 }
+.pills{ margin-top:8px; display:flex; flex-wrap:wrap; gap:8px; }
+.pill{ background:#fff; border-radius:999px; padding:6px 10px; box-shadow: var(--shadow); font-size:.85rem }
+
+/* Charts side-by-side */
+.charts{ display:flex; gap:var(--gap-3); flex-wrap:wrap; align-items:stretch; }
+.chart-card{ flex:1 1 320px; min-width:280px; background:#fff; border-radius:var(--r-lg); box-shadow:var(--shadow); padding:12px; }
+.chart-card h3{ margin:.4rem 0 .6rem; color:var(--muted); font-size:.95rem }
+
+/* Meals */
+.meal{ border-left:6px solid var(--brand-2); background:#f8fafc; border-radius:12px; padding:12px 14px; margin-bottom:10px }
+.meal h4{ margin:0 0 6px; color:#1e40af }
+.meal small{ color:var(--muted) }
+.tags{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px }
+.tag{ background:#fde68a; color:#7c5800; padding:4px 8px; border-radius:999px; font-size:.8rem }
+
+/* Footer actions */
+.footer-actions{ display:flex; gap:8px; justify-content:flex-end }
+
+/* Print */
+@media print{
+  .header, .footer-actions, .chips, .actions{ display:none }
+  body{ background:#fff }
+  .container{ width:100% }
+}
+
+/* Floating calculate bar */
+.calc-bar {
+  position: sticky;
+  bottom: 0;
+  background: linear-gradient(to top, #f8fafc, rgba(248,250,252,.6));
+  backdrop-filter: blur(8px);
+  border-top: 1px solid #e2e8f0;
+  padding: 10px;
+  display: flex;
+  justify-content: flex-end;
+  z-index: 50;
+}
+.calc-bar .btn-primary {
+  flex: 1;
+  max-width: 280px;
+  font-size: 1.1rem;
+  padding: 12px;
+  border-radius: 14px;
+}
+.calc-bar .btn-primary:active {
+  transform: scale(.98);
+  background: #1d4ed8;
+}
+
+
+
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>Smart calories & BMI Analyzer</h1>
+        <div class="sub">คำนวณ • แปลผล • วางแผนโภชนาการ • กราฟ • ส่งออก</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-ghost" id="demo">ตัวอย่าง</button>
+      
+    </div>
+  </div>
+
+  <!-- STEP A: Basic -->
+  <section class="card col-12">
+    <h2>ข้อมูลพื้นฐาน</h2>
+    <div class="form" role="group" aria-labelledby="basic">
+      <div class="group third">
+        <label class="label" for="age">อายุ (ปี)</label>
+        <input class="input" id="age" type="number" min="10" max="100" step="1" placeholder="เช่น 18" required />
+        <div class="help">ใช้ช่วงจริงของคุณ เพื่อความแม่นยำของ BMR</div>
+      </div>
+      <div class="group third">
+        <label class="label" for="gender">เพศ</label>
+        <select class="select" id="gender">
+          <option value="male">ชาย</option>
+          <option value="female">หญิง</option>
+        </select>
+      </div>
+      <div class="group third">
+        <label class="label" for="activity">กิจกรรม (เลือกชิปหรือกำหนดเอง)</label>
+        <div class="chips" id="activityChips" aria-label="กิจกรรม">
+          <button type="button" class="chip" data-val="1.2">Sedentary</button>
+          <button type="button" class="chip" data-val="1.375">Light</button>
+          <button type="button" class="chip" data-val="1.55">Moderate</button>
+          <button type="button" class="chip" data-val="1.725">Active</button>
+          <button type="button" class="chip" data-val="1.9">Athlete</button>
+        </div>
+        <select class="select" id="activity">
+          <option value="1.2">ไม่ออกกำลังกาย</option>
+          <option value="1.375">เบา (1–3 วัน/สัปดาห์)</option>
+          <option value="1.55">ปานกลาง (3–5 วัน/สัปดาห์)</option>
+          <option value="1.725">หนัก (6–7 วัน/สัปดาห์)</option>
+          <option value="1.9">หนักมาก</option>
+        </select>
+      </div>
+
+      <div class="group half">
+        <label class="label" for="weight">น้ำหนัก (กก.)</label>
+        <input class="input" id="weight" type="number" min="25" max="250" step="0.5" placeholder="เช่น 70.0" required />
+        <div class="help">ใส่ได้ละเอียดเป็นทศนิยม เช่น 63.5</div>
+      </div>
+      <div class="group half">
+        <label class="label" for="height">ส่วนสูง (ซม.)</label>
+        <input class="input" id="height" type="number" min="120" max="220" step="0.5" placeholder="เช่น 175.0" required />
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP B: Goals & Preferences -->
+  <section class="card col-12">
+    <h2>เป้าหมาย & ความชอบ</h2>
+    <div class="form">
+      <div class="group third">
+        <label class="label" for="goal">เป้าหมาย</label>
+        <div class="chips" id="goalChips">
+          <button type="button" class="chip" data-goal="lose">ลด (-500 kcal)</button>
+          <button type="button" class="chip" data-goal="maintain" data-active="true">คงที่</button>
+          <button type="button" class="chip" data-goal="gain">เพิ่ม (+300 kcal)</button>
+        </div>
+        <select class="select" id="goal">
+          <option value="lose">ลดน้ำหนัก</option>
+          <option value="maintain" selected>คงที่</option>
+          <option value="gain">เพิ่มน้ำหนัก</option>
+        </select>
+        <div class="group third">
+  <label class="label">ฮาลาล</label>
+  <div class="chips" id="halalChip">
+    <button class="chip" id="halalToggle" data-active="false">ฮาลาลเท่านั้น</button>
+  </div>
+  <div class="help">เปิดใช้เพื่อแสดงเฉพาะเมนูที่ผ่านมาตรฐานฮาลาล</div>
+</div>
+
+      </div>
+
+      <div class="group third">
+        <label class="label">โหมดโภชนาการ</label>
+        <div class="chips" id="modeChips">
+          <button class="chip" data-mode="standard" data-active="true">ปกติ</button>
+          <button class="chip" data-mode="keto">คีโต</button>
+          <button class="chip" data-mode="clean">คลีน</button>
+          <button class="chip" data-mode="lowcarb">โลว์คาร์บ</button>
+          <button class="chip" data-mode="highprotein">ไฮโปรตีน</button>
+        </div>
+        <select class="select" id="mode">
+          <option value="standard" selected>ปกติ</option>
+          <option value="keto">คีโต</option>
+          <option value="clean">คลีน</option>
+          <option value="lowcarb">โลว์คาร์บ</option>
+          <option value="highprotein">ไฮโปรตีน</option>
+        </select>
+      </div>
+
+      <div class="group third">
+        <label class="label" for="cuisine">ครัว</label>
+        <div class="chips" id="cuisineChips">
+          <button class="chip" data-cuisine="ไทย" data-active="true">ไทย</button>
+          <button class="chip" data-cuisine="ญี่ปุ่น">ญี่ปุ่น</button>
+          <button class="chip" data-cuisine="เวียดนาม">เวียดนาม</button>
+          <button class="chip" data-cuisine="ตะวันตก">ตะวันตก</button>
+        </div>
+        <select class="select" id="cuisine">
+          <option>ไทย</option><option>ญี่ปุ่น</option><option>เวียดนาม</option><option>ตะวันตก</option>
+        </select>
+      </div>
+
+      <div class="group col-12">
+        <label class="label" for="avoid">เลี่ยงส่วนผสม (คั่นด้วย , )</label>
+        <input class="input" id="avoid" placeholder="เช่น ถั่ว, กุ้ง, กลูเตน, นมวัว" />
+        <div class="help">ใช้กรองเมนูที่ไม่เหมาะกับคุณ</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section class="card result" id="results" aria-live="polite" style="display:none">
+    <h2>ผลลัพธ์ & การแปลความ</h2>
+    <div class="kv">
+      <div class="item"><div class="t">BMR (kcal)</div><div id="bmr" class="v">-</div></div>
+      <div class="item"><div class="t">TDEE (kcal)</div><div id="tdee" class="v">-</div></div>
+      <div class="item"><div class="t">BMI</div><div id="bmi" class="v">-</div></div>
+      <div class="item"><div class="t">สถานะ</div><div id="status" class="v">-</div></div>
+    </div>
+    <div class="pills" id="quickPills"></div>
+    <div class="explain" id="explain"></div>
+  </section>
+
+  <!-- Charts side-by-side -->
+  <section id="chartsWrap" class="charts" style="display:none">
+    <div class="chart-card">
+      <h3>พลังงานต่อวันตามเป้าหมาย</h3>
+      <canvas id="tdeeChart" height="140"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>สัดส่วนสารอาหารที่แนะนำ (กรัม/วัน)</h3>
+      <canvas id="macroChart" height="140"></canvas>
+    </div>
+  </section>
+
+  <!-- Meals -->
+  <section id="mealsWrap" class="card" style="display:none">
+    <h2>เมนูรายวันอัตโนมัติ</h2>
+    <div id="meals"></div>
+  </section>
+
+  <div class="footer-actions">
+    <button class="btn btn-ghost" id="save">บันทึกค่าเริ่มต้น</button>
+    <button class="btn btn-ghost" id="export">Export JSON</button>
+    <button class="btn btn-primary" id="calc">คำนวณ</button>
+    <button class="btn btn-primary" onclick="window.print()">Print PDF</button>
+  </div>
+</div>
+
+<script>
+/* ============ Helpers & Data ============ */
+const $ = s => document.querySelector(s);
+const fmt = n => Number(n).toLocaleString();
+
+function mifflin({gender, weight, height, age}){
+  // สูตรจากโค้ดเดิมของมัง (คงไว้เพื่อความต่อเนื่อง) :contentReference[oaicite:3]{index=3}
+  return (gender==='male')
+    ? 88.362 + 13.397*weight + 4.799*height - 5.677*age
+    : 447.593 + 9.247*weight + 3.098*height - 4.330*age;
+}
+function bmiCalc(w,h){ return w / Math.pow(h/100,2); } // :contentReference[oaicite:4]{index=4}
+
+function statusFromBMI(bmi){
+  if (bmi<18.5) return {key:'under', label:'น้ำหนักน้อย', color:'var(--brand-2)'};
+  if (bmi<25)   return {key:'normal', label:'ปกติ', color:'var(--ok)'};
+  if (bmi<30)   return {key:'over', label:'เกิน', color:'var(--warn)'};
+  return {key:'obese', label:'อ้วน', color:'var(--danger)'};
+}
+function targetCalories(tdee, goal){ return goal==='lose' ? tdee-500 : goal==='gain' ? tdee+300 : tdee; }
+
+function macroPreset(mode, bmiStatus, goal){
+  // เปอร์เซ็นต์รวม = 1.0 → ค่อยแปลงเป็นกรัม
+  const presets = {
+    standard:{c:.50,p:.25,f:.25}, clean:{c:.50,p:.30,f:.20},
+    keto:{c:.10,p:.25,f:.65}, lowcarb:{c:.25,p:.40,f:.35}, highprotein:{c:.40,p:.40,f:.20}
+  };
+  let p = presets[mode] || presets.standard;
+  if (goal==='lose' && mode==='standard') p = {c:.40,p:.35,f:.25};
+  if ((bmiStatus.key==='over'||bmiStatus.key==='obese') && mode==='standard') p = {c:.45,p:.30,f:.25};
+  return p;
+}
+function kcalToGrams(kcal, {c,p,f}){ return { c:kcal*c/4, p:kcal*p/4, f:kcal*f/9 }; }
+
+/* เมนูตัวอย่าง (ขยายให้ครอบคลุมครัว & โหมด) */
+const DB = [
+  // ไทย
+  {name:"ข้าวกล้อง + อกไก่ย่าง + น้ำพริกผักลวก", kcal:520, p:40, c:55, f:12, cuisine:"ไทย", tags:["คลีน","ไฮโปรตีน"], flags:{pork:false, halal:true}},
+  {name:"ต้มยำกุ้ง + ข้าว", kcal:480, p:26, c:60, f:12, cuisine:"ไทย", tags:["คลีน"], flags:{shellfish:true, halal:true}},
+  {name:"ลาบอกไก่ + ข้าวเหนียวดำ", kcal:560, p:38, c:62, f:16, cuisine:"ไทย", tags:["ไฮโปรตีน"], flags:{pork:false, halal:true}},
+  {name:"แกงเขียวหวานไก่ (ข้าว)", kcal:620, p:32, c:68, f:20, cuisine:"ไทย", tags:[], flags:{pork:false, halal:true}},
+
+  // ญี่ปุ่น
+  {name:"ซาชิมิแซลมอน + สลัดสาหร่าย", kcal:430, p:34, c:18, f:24, cuisine:"ญี่ปุ่น", tags:["โลว์คาร์บ","คีโต"], flags:{pork:false, halal:true}},
+  {name:"ข้าวหน้าไก่ย่าง (Oyakodon แบบข้าวกล้อง)", kcal:540, p:32, c:70, f:14, cuisine:"ญี่ปุ่น", tags:["คลีน"], flags:{pork:false, halal:true}},
+  {name:"โซบะเย็น + เต้าหู้", kcal:500, p:22, c:72, f:10, cuisine:"ญี่ปุ่น", tags:["มังสวิรัติ","คลีน"], flags:{gluten:true}},
+
+  // เวียดนาม
+  {name:"เฝอไก่", kcal:460, p:30, c:65, f:8, cuisine:"เวียดนาม", tags:["คลีน"], flags:{pork:false, halal:true}},
+  {name:"ปอเปี๊ยะสดกุ้ง + ผักแน่น", kcal:380, p:22, c:48, f:10, cuisine:"เวียดนาม", tags:["โลว์คาร์บ"], flags:{shellfish:true}},
+
+  // ตะวันตก
+  {name:"สเต๊กไก่ + มันฝรั่งอบ + ผักย่าง", kcal:560, p:40, c:50, f:18, cuisine:"ตะวันตก", tags:["ไฮโปรตีน"], flags:{pork:false, halal:true}},
+  {name:"สลัดทูน่า + ไข่ต้ม", kcal:330, p:28, c:14, f:16, cuisine:"ตะวันตก", tags:["โลว์คาร์บ","คีโต"], flags:{fish:true}},
+  {name:"พาสต้าโฮลวีตไก่ซอสแดง", kcal:610, p:35, c:78, f:16, cuisine:"ตะวันตก", tags:["คลีน"], flags:{gluten:true}},
+
+  // non-halal ตัวอย่าง (จะถูกกรองในโหมดฮาลาล)
+  {name:"ข้าวผัดไก่ไข่", kcal:650, p:28, c:75, f:22, cuisine:"ไทย", tags:[], flags:{pork:true, halal:false}},
+];
+
+function filterMeals(cuisine, mode, avoid, halalOnly){
+  const avoidList = (avoid||'').toLowerCase().split(',').map(s=>s.trim()).filter(Boolean);
+  return DB.filter(m=>{
+    if (cuisine && m.cuisine!==cuisine) return false;
+    if (halalOnly && m.flags && m.flags.halal===false) return false;
+    if (avoidList.length){
+      // ธงคร่าว ๆ: ถ้าเมนูติด flags ที่ user เลี่ยง (เช่น shellfish) ให้กรองออก
+      if (m.flags && avoidList.some(a => (a.includes('กุ้ง') && m.flags.shellfish) || (a.includes('ไก่') && m.flags.pork) || (a.includes('กลูเตน') && m.flags.gluten))) return false;
+      // ขยายในจริงสามารถ map คีย์เวิร์ดกับชื่อเมนู
+    }
+    // โหมดบางแบบเน้น tags
+    if (mode==='keto'     && !m.tags.includes('คีโต')) return false;
+    if (mode==='lowcarb'  && !m.tags.includes('โลว์คาร์บ')) return false;
+    if (mode==='clean'    && !m.tags.includes('คลีน')) return false;
+    if (mode==='highprotein' && !m.tags.includes('ไฮโปรตีน')) return false;
+    return true;
+  });
+}
+
+function slotsFor(meals=3){
+  // สัดส่วนพลังงานต่อมื้อ: 3=30/40/30, 4=25/35/30/10, 5=20/30/30/10/10
+  const map={3:[.30,.40,.30],4:[.25,.35,.30,.10],5:[.20,.30,.30,.10,.10]};
+  return map[meals]||map[3];
+}
+function pickPlan(targetKcal, cuisine, mode, avoid, meals=3, halalOnly=false){
+  const pool = filterMeals(cuisine, mode, avoid, halalOnly);
+  const ratios = slotsFor(meals);
+  const names = (meals===3)?["มื้อเช้า","มื้อกลางวัน","มื้อเย็น"]:(meals===4?["มื้อเช้า","มื้อกลางวัน","มื้อเย็น","ของว่าง"]:["มื้อเช้า","มื้อกลางวัน","มื้อเย็น","ของว่าง 1","ของว่าง 2"]);
+  const plan=[], kcalSlots=ratios.map(r=>r*targetKcal);
+  kcalSlots.forEach((slot,i)=>{
+    let best=null, diff=1e9;
+    for (const m of pool){
+      const d = Math.abs(m.kcal-slot);
+      if (d<diff){ diff=d; best=m; }
+    }
+    const scale = Math.max(.6, Math.min(1.6, slot/(best?.kcal||slot)));
+    plan.push({...best, slot, scale, label:names[i]});
+  });
+  return plan;
+}
+
+/* ============ UI Wiring ============ */
+const activityChips = $("#activityChips");
+const goalChips = $("#goalChips");
+const modeChips = $("#modeChips");
+const cuisineChips = $("#cuisineChips");
+
+function bindChips(container, select, dataAttr){
+  container?.addEventListener('click', e=>{
+    const b = e.target.closest('.chip'); if(!b) return;
+    [...container.querySelectorAll('.chip')].forEach(x=>x.removeAttribute('data-active'));
+    b.setAttribute('data-active','true');
+    if (dataAttr==='data-val') select.value = b.getAttribute('data-val');
+    if (dataAttr==='data-goal') select.value = b.getAttribute('data-goal');
+    if (dataAttr==='data-mode') select.value = b.getAttribute('data-mode');
+    if (dataAttr==='data-cuisine') select.value = b.getAttribute('data-cuisine');
+  });
+}
+bindChips(activityChips, $("#activity"), 'data-val');
+bindChips(goalChips,     $("#goal"),     'data-goal');
+bindChips(modeChips,     $("#mode"),     'data-mode');
+bindChips(cuisineChips,  $("#cuisine"),  'data-cuisine');
+
+$("#demo").addEventListener('click', ()=>{
+  $("#age").value=18; $("#gender").value='male'; $("#weight").value=70; $("#height").value=175; $("#activity").value='1.55';
+  $("#goal").value='maintain'; $("#mode").value='standard'; $("#cuisine").value='ไทย'; $("#avoid").value='ถั่ว';
+  // highlight chips
+  [...activityChips.querySelectorAll('.chip')].forEach(c=>c.removeAttribute('data-active'));
+  activityChips.querySelector('[data-val="1.55"]').setAttribute('data-active','true');
+  [...goalChips.querySelectorAll('.chip')].forEach(c=>c.removeAttribute('data-active'));
+  goalChips.querySelector('[data-goal="maintain"]').setAttribute('data-active','true');
+  [...modeChips.querySelectorAll('.chip')].forEach(c=>c.removeAttribute('data-active'));
+  modeChips.querySelector('[data-mode="standard"]').setAttribute('data-active','true');
+  [...cuisineChips.querySelectorAll('.chip')].forEach(c=>c.removeAttribute('data-active'));
+  cuisineChips.querySelector('[data-cuisine="ไทย"]').setAttribute('data-active','true');
+});
+
+let chart1, chart2;
+
+$("#calc").addEventListener('click', ()=>{
+  
+
+let halalOnly = false;
+const halalToggle = $("#halalToggle");
+halalToggle.addEventListener("click", ()=>{
+  halalOnly = !halalOnly;
+  halalToggle.setAttribute("data-active", halalOnly);
+  halalToggle.textContent = halalOnly ? "เปิด: แสดงเฉพาะฮาลาล" : "ฮาลาลเท่านั้น";
+});
+
+
+  const age=+$("#age").value, gender=$("#gender").value, weight=+$("#weight").value, height=+$("#height").value;
+  const activity=+$("#activity").value, goal=$("#goal").value, mode=$("#mode").value, cuisine=$("#cuisine").value;
+  const avoid = $("#avoid").value || '';
+  if(!age||!weight||!height) return;
+
+  const bmr = mifflin({gender,weight,height,age});         // จากไฟล์เดิม:contentReference[oaicite:5]{index=5}
+  const tdee = bmr * activity;                              // จากไฟล์เดิม:contentReference[oaicite:6]{index=6}
+  const bmi  = bmiCalc(weight,height);                      // จากไฟล์เดิม:contentReference[oaicite:7]{index=7}
+  const st   = statusFromBMI(bmi);
+  $("#results").style.display='block';
+  $("#bmr").textContent = Math.round(bmr);
+  $("#tdee").textContent= Math.round(tdee);
+  $("#bmi").textContent = bmi.toFixed(2);
+  $("#status").textContent = st.label;
+  $("#results").style.borderLeftColor = getComputedStyle(document.documentElement).getPropertyValue(st.color?st.color.replace('var(','').replace(')',''):'var(--brand)');
+
+  
+  // เป้าหมาย + Macro (กรัม/วัน)
+  const target = Math.max(1000, targetCalories(tdee, goal));
+  const preset = macroPreset(mode, st, goal);
+  const grams  = kcalToGrams(target, preset);
+  const water  = Math.round(weight * 35); // ml/day guideline
+  const minProt= Math.round(weight * (mode==='highprotein'? 2.0 : 1.6)); // g/day baseline
+
+  // Quick pills
+  $("#quickPills").innerHTML = `
+    <span class="pill">พลังงานเป้าหมาย: ${fmt(target)} kcal</span>
+    <span class="pill">คาร์บ ~ ${Math.round(grams.c)} g/วัน</span>
+    <span class="pill">โปรตีน ~ ${Math.round(grams.p)} g/วัน</span>
+    <span class="pill">ไขมัน ~ ${Math.round(grams.f)} g/วัน</span>
+    <span class="pill">น้ำดื่ม ~ ${fmt(water)} ml/วัน</span>
+    <span class="pill">โปรตีนขั้นต่ำ ~ ${minProt} g/วัน</span>
+  `;
+
+  // Explanation
+  const tipsUnder = "เพิ่มพลังงาน 300–600 kcal/วัน เน้นโปรตีนคุณภาพ + เวทเทรนนิ่ง 3–4 ครั้ง/สัปดาห์";
+  const tipsNormal= "ยอดเยี่ยม! รักษาสมดุลอาหารครบไก่่ + ออกกำลังกายผสมคาร์ดิโอ/เวท ≥150 นาที/สัปดาห์";
+  const tipsOver  = "จำกัดน้ำตาล/แป้งขัดสี ลด 400–600 kcal/วัน + เดินเร็ว/ว่ายน้ำ 30 นาที/วัน";
+  const tipsObese = "ปรึกษาแพทย์/นักกำหนดอาหาร ลด 500–800 kcal/วัน + คาร์ดิโอเบา ๆ ต่อเนื่อง";
+  const explain = st.key==='under'?tipsUnder: st.key==='normal'?tipsNormal: st.key==='over'?tipsOver:tipsObese;
+  $("#explain").textContent = `สรุป: ${explain}`;
+
+  // Charts
+  $("#chartsWrap").style.display='flex';
+  if(chart1) chart1.destroy(); if(chart2) chart2.destroy();
+  chart1 = new Chart($("#tdeeChart"), {
+    type:'bar',
+    data:{ labels:['ลด (-500)','คงที่','เพิ่ม (+300)'],
+      datasets:[{ data:[tdee-500, tdee, tdee+300], backgroundColor:['#ef4444','#16a34a','#1e40af'], borderRadius:8 }] },
+    options:{ plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
+  });
+  chart2 = new Chart($("#macroChart"), {
+    type:'doughnut',
+    data:{ labels:['คาร์บ (g)','โปรตีน (g)','ไขมัน (g)'],
+      datasets:[{ data:[Math.round(grams.c), Math.round(grams.p), Math.round(grams.f)], backgroundColor:['#60a5fa','#34d399','#fbbf24'] }] },
+    options:{ plugins:{legend:{position:'bottom'}} }
+  });
+
+  // Meals (3 มื้อ + ของว่าง 1 มื้อ แบบเข้าใจง่าย)
+  const plan = pickPlan(target, cuisine, mode, avoid, 4, halalOnly);
+
+  $("#mealsWrap").style.display='block';
+  const mealsEl = $("#meals"); mealsEl.innerHTML='';
+  plan.forEach(m=>{
+    const kcal = Math.round(m.kcal*m.scale), p=Math.round(m.p*m.scale), c=Math.round(m.c*m.scale), f=Math.round(m.f*m.scale);
+    const tags = [ `${kcal} kcal`, m.cuisine, ...(m.tags||[]) ];
+    const tagHtml = tags.map(t=>`<span class="tag">${t}</span>`).join('');
+    const scaled = (m.scale>1.05 || m.scale<0.95) ? ` <small>(ปรับสัดส่วน x${m.scale.toFixed(2)})</small>`:'';
+    mealsEl.insertAdjacentHTML('beforeend', `
+      <div class="meal">
+        <h4>${m.label}: ${m.name}${scaled}</h4>
+        <small>โปรตีน ~ ${p} g • คาร์บ ~ ${c} g • ไขมัน ~ ${f} g</small>
+        <div class="tags">${tagHtml}</div>
+      </div>
+    `);
+  });
+
+  // Export JSON
+  $("#export").onclick = ()=>{
+    const data = {
+      input:{age,gender,weight,height,activity,goal,mode,cuisine,avoid},
+      results:{bmr:Math.round(bmr), tdee:Math.round(tdee), bmi:+bmi.toFixed(2), status:st.label,
+               target:Math.round(target), grams:{c:Math.round(grams.c),p:Math.round(grams.p),f:Math.round(grams.f)},
+               water, minProtein:minProt},
+      meals: plan.map(m=>({label:m.label, name:m.name, cuisine:m.cuisine, kcal:Math.round(m.kcal*m.scale),
+                            p:Math.round(m.p*m.scale), c:Math.round(m.c*m.scale), f:Math.round(m.f*m.scale)}))
+    };
+    const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const url = URL.createObjectURL(blob); const a=document.createElement('a');
+    a.href=url; a.download='HealthReport.json'; a.click(); URL.revokeObjectURL(url);
+  };
+
+  // Save defaults
+  $("#save").onclick = ()=>{
+    const pref = {age,gender,weight,height,activity,goal,mode,cuisine,avoid};
+    localStorage.setItem('health.defaults', JSON.stringify(pref));
+    alert('บันทึกค่าเริ่มต้นแล้ว');
+  };
+});
+
+// Load defaults if any
+(function(){
+  const raw = localStorage.getItem('health.defaults');
+  if(!raw) return;
+  try{
+    const d = JSON.parse(raw);
+    if(d.age) $("#age").value=d.age;
+    if(d.gender) $("#gender").value=d.gender;
+    if(d.weight) $("#weight").value=d.weight;
+    if(d.height) $("#height").value=d.height;
+    if(d.activity) $("#activity").value=d.activity;
+    if(d.goal) $("#goal").value=d.goal;
+    if(d.mode) $("#mode").value=d.mode;
+    if(d.cuisine) $("#cuisine").value=d.cuisine;
+    if(d.avoid) $("#avoid").value=d.avoid;
+  }catch{}
+})();
+
+
+;
+</script>
+</body>
+</html>
